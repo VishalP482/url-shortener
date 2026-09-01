@@ -1,25 +1,58 @@
+import { eq } from "drizzle-orm";
+
+import { db } from "../../db/index.js";
+import { urls } from "../../db/schema.js";
+
 export interface UrlRecord {
-    id: string;
+    id: number;
     shortCode: string;
     originalUrl: string;
     expiresAt: Date;
     createdAt: Date;
 }
 
-const urls = new Map<string, UrlRecord>();
-
 export const urlRepository = {
-    async create(data: UrlRecord) {
-        urls.set(data.shortCode, data);
+    async create(
+        data: Omit<UrlRecord, "id" | "createdAt">
+    ): Promise<UrlRecord> {
+        const [record] = await db
+            .insert(urls)
+            .values({
+                shortCode: data.shortCode,
+                originalUrl: data.originalUrl,
+                expiresAt: data.expiresAt,
+            })
+            .returning();
 
-        return data;
+        if (!record) {
+            throw new Error("Failed to create URL");
+        }
+
+        return record;
     },
 
-    async findByShortCode(shortCode: string) {
-        return urls.get(shortCode) ?? null;
+    async findByShortCode(
+        shortCode: string
+    ): Promise<UrlRecord | null> {
+        const [record] = await db
+            .select()
+            .from(urls)
+            .where(eq(urls.shortCode, shortCode))
+            .limit(1);
+
+        return record ?? null;
     },
 
-    async deleteByShortCode(shortCode: string) {
-        return urls.delete(shortCode);
+    async deleteByShortCode(
+        shortCode: string
+    ): Promise<boolean> {
+        const deleted = await db
+            .delete(urls)
+            .where(eq(urls.shortCode, shortCode))
+            .returning({
+                id: urls.id,
+            });
+
+        return deleted.length > 0;
     },
 };

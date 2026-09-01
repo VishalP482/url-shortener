@@ -1,6 +1,36 @@
-import type { FastifyInstance } from "fastify";
-import { createShortUrl } from "./url.controller";
+import type { FastifyPluginAsync } from "fastify";
+import type { ZodTypeProvider } from "@fastify/type-provider-zod";
 
-export async function urlRoutes(fastify: FastifyInstance) {
-    fastify.post("/urls", createShortUrl);
-}
+import { createShortUrl } from "./url.controller";
+import {
+    createShortUrlSchema,
+    createShortUrlResponseSchema,
+    errorResponseSchema,
+} from "./url.schema";
+
+export const urlRoutes: FastifyPluginAsync = async (app) => {
+    const router = app.withTypeProvider<ZodTypeProvider>();
+
+    router.post(
+        "/urls",
+        {
+            schema: {
+                tags: ["URL"],
+                operationId: "createShortUrl",
+                summary: "Create a short URL",
+                description: "Create a shortened URL from a long URL.",
+
+                body: createShortUrlSchema,
+
+                response: {
+                    201: createShortUrlResponseSchema,
+
+                    400: errorResponseSchema,
+
+                    500: errorResponseSchema,
+                },
+            },
+        },
+        createShortUrl,
+    );
+};

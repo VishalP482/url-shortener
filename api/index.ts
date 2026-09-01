@@ -1,5 +1,5 @@
-import { app } from "./src/app.js";
-import { env } from "./src/config/env.js";
+import { app } from "./src/app";
+import { env } from "./src/config/env";
 
 const start = async () => {
     try {

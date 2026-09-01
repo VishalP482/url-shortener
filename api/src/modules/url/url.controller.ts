@@ -1,16 +1,19 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type {
+    FastifyReply,
+    FastifyRequest,
+} from "fastify";
+
+import type { z } from "zod";
+import { createShortUrlSchema } from "./url.schema";
 import { urlService } from "./url.service";
 
-interface CreateUrlBody {
-    url: string;
-    expiresIn: number;
-}
+type CreateShortUrlRequest = FastifyRequest<{
+    Body: z.infer<typeof createShortUrlSchema>;
+}>;
 
 export async function createShortUrl(
-    request: FastifyRequest<{
-        Body: CreateUrlBody;
-    }>,
-    reply: FastifyReply
+    request: CreateShortUrlRequest,
+    reply: FastifyReply,
 ) {
     try {
         const result = await urlService.createShortUrl(request.body);
@@ -18,11 +21,14 @@ export async function createShortUrl(
         return reply.status(201).send({
             shortCode: result.shortCode,
             shortUrl: `${request.protocol}://${request.host}/${result.shortCode}`,
-            expiresAt: result.expiresAt,
+            expiresAt: result.expiresAt.toISOString(),
         });
     } catch (error) {
         return reply.status(400).send({
-            message: error instanceof Error ? error.message : "Something went wrong",
+            message:
+                error instanceof Error
+                    ? error.message
+                    : "Something went wrong",
         });
     }
 }
