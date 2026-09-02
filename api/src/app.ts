@@ -10,10 +10,8 @@ import {
     validatorCompiler,
 } from "@fastify/type-provider-zod";
 
-import { urlRoutes } from "./modules/url";
-import { redirectRoutes } from "./modules/redirect";
-
 import { swaggerConfig } from "./config/swagger";
+import { apiRoutes } from "./routes/api.routes";
 
 export const app = Fastify({
     logger: true,
@@ -38,11 +36,7 @@ app.register(fastifySwaggerUi, {
 });
 
 // Routes
-app.register(urlRoutes, {
-    prefix: "/api/v1",
-});
-
-app.register(redirectRoutes);
+app.register(apiRoutes);
 
 app.get("/health", async () => {
     return {

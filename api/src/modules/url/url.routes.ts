@@ -12,7 +12,7 @@ export const urlRoutes: FastifyPluginAsync = async (app) => {
     const router = app.withTypeProvider<ZodTypeProvider>();
 
     router.post(
-        "/urls",
+        "/v1/urls",
         {
             schema: {
                 tags: ["URL"],
