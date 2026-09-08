@@ -11,6 +11,7 @@ import {
 } from "@fastify/type-provider-zod";
 
 import { swaggerConfig } from "./config/swagger";
+import { authPlugin } from "./plugins/auth";
 import { apiRoutes } from "./routes/api.routes";
 
 export const app = Fastify({
@@ -34,6 +35,9 @@ app.register(fastifySwagger, {
 app.register(fastifySwaggerUi, {
     routePrefix: "/doc",
 });
+
+// Auth plugin (must be registered before protected routes)
+app.register(authPlugin);
 
 // Routes
 app.register(apiRoutes);

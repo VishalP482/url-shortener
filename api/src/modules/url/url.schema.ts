@@ -16,6 +16,17 @@ export const createShortUrlSchema = z.object({
             description: "Expiration time in seconds",
             examples: [3600],
         }),
+
+    // Optional userId — set automatically when user is authenticated
+    userId: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .meta({
+            description: "User ID (set automatically for authenticated users)",
+            examples: [1],
+        }),
 });
 
 export const createShortUrlResponseSchema = z.object({

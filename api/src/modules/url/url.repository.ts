@@ -8,6 +8,7 @@ export interface UrlRecord {
     shortCode: string;
     originalUrl: string;
     expiresAt: Date;
+    userId: number | null;
     createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ export const urlRepository = {
                 shortCode: data.shortCode,
                 originalUrl: data.originalUrl,
                 expiresAt: data.expiresAt,
+                userId: data.userId,
             })
             .returning();
 

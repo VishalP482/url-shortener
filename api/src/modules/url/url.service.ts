@@ -5,6 +5,7 @@ import type { UrlRecord } from "./url.repository";
 interface CreateUrlInput {
     url: string;
     expiresIn: number;
+    userId?: number | null;
 }
 
 function generateShortCode(length = 7): string {
@@ -15,7 +16,7 @@ function generateShortCode(length = 7): string {
 
 export const urlService = {
     async createShortUrl(input: CreateUrlInput) {
-        const { url, expiresIn } = input;
+        const { url, expiresIn, userId } = input;
 
         // Validate URL
         try {
@@ -37,12 +38,11 @@ export const urlService = {
 
         const now = new Date();
 
-        const record: UrlRecord = {
-            id: crypto.randomUUID(),
+        const record: Omit<UrlRecord, "id" | "createdAt"> = {
             shortCode,
             originalUrl: url,
             expiresAt: new Date(now.getTime() + expiresIn * 1000),
-            createdAt: now,
+            userId: userId ?? null,
         };
 
         await urlRepository.create(record);
