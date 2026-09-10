@@ -5,13 +5,21 @@ import { RedirectParams } from "./redirect.schema";
 export async function redirectToOriginalUrl(
     request: FastifyRequest<{
         Params: RedirectParams;
+        Querystring: Record<string, string | undefined>;
     }>,
     reply: FastifyReply
 ) {
     try {
         const originalUrl = await redirectService.getOriginalUrl(
-            request.params.shortCode
+            request.params.shortCode,
+            request.query
         );
+
+        // Track analytics asynchronously — don't block the redirect
+        redirectService.trackRedirect(request.params.shortCode, {
+            headers: request.headers as Record<string, string | undefined>,
+            ip: request.ip,
+        });
 
         return reply.redirect(originalUrl, 302);
     } catch (error) {

@@ -4,6 +4,7 @@ import {
     varchar,
     timestamp,
     boolean,
+    index,
 } from "drizzle-orm/pg-core";
 
 export const urls = pgTable("urls", {
@@ -57,3 +58,49 @@ export const refreshTokens = pgTable("refresh_tokens", {
     ipAddress: varchar("ip_address", { length: 45 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// UTM configuration for short URLs — one config per URL
+export const urlUtms = pgTable("url_utms", {
+    id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+
+    urlId: integer("url_id")
+        .notNull()
+        .references(() => urls.id, { onDelete: "cascade" })
+        .unique(),
+
+    utmSource: varchar("utm_source", { length: 255 }),
+    utmMedium: varchar("utm_medium", { length: 255 }),
+    utmCampaign: varchar("utm_campaign", { length: 255 }),
+    utmTerm: varchar("utm_term", { length: 255 }),
+    utmContent: varchar("utm_content", { length: 255 }),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    urlIdIdx: index("url_utms_url_id_idx").on(table.urlId),
+}));
+
+// Analytics events for short URL redirects
+export const urlAnalytics = pgTable("url_analytics", {
+    id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+
+    urlId: integer("url_id")
+        .notNull()
+        .references(() => urls.id, { onDelete: "cascade" }),
+
+    clickedAt: timestamp("clicked_at", { withTimezone: true }).defaultNow().notNull(),
+
+    // Privacy-conscious: store hashed/truncated IP instead of raw IP
+    ipHash: varchar("ip_hash", { length: 64 }),
+
+    // Geolocation — nullable when unknown
+    country: varchar("country", { length: 100 }),
+    region: varchar("region", { length: 100 }),
+
+    // Device and OS — parsed from User-Agent
+    deviceType: varchar("device_type", { length: 50 }),
+    os: varchar("os", { length: 100 }),
+}, (table) => ({
+    urlIdIdx: index("url_analytics_url_id_idx").on(table.urlId),
+    clickedAtIdx: index("url_analytics_clicked_at_idx").on(table.clickedAt),
+}));

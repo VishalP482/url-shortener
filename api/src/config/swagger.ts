@@ -32,6 +32,14 @@ export const swaggerConfig: FastifyDynamicSwaggerOptions = {
         name: "Redirect",
         description: "Short URL redirect operations",
       },
+      {
+        name: "UTM",
+        description: "UTM parameter configuration",
+      },
+      {
+        name: "Analytics",
+        description: "URL analytics and click tracking",
+      },
     ],
 
     components: {

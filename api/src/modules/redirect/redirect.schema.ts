@@ -7,6 +7,14 @@ export const redirectParamsSchema = z.object({
     }),
 });
 
+export const redirectQuerySchema = z.object({
+    utm_source: z.string().optional(),
+    utm_medium: z.string().optional(),
+    utm_campaign: z.string().optional(),
+    utm_term: z.string().optional(),
+    utm_content: z.string().optional(),
+});
+
 export const errorResponseSchema = z.object({
     message: z.string().meta({
         description: "Error message",
@@ -15,3 +23,4 @@ export const errorResponseSchema = z.object({
 });
 
 export type RedirectParams = z.infer<typeof redirectParamsSchema>;
+export type RedirectQuery = z.infer<typeof redirectQuerySchema>;
