@@ -17,7 +17,7 @@ export async function getMe(
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isActive: user.isActive,
+                status: user.status,
                 createdAt: user.createdAt.toISOString(),
             },
         });
@@ -29,7 +29,7 @@ export async function getMe(
 
         const statusCode =
             message === "User not found" ||
-            message === "User account is deactivated"
+                message === "User account is deactivated"
                 ? 404
                 : 401;
 

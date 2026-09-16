@@ -5,7 +5,12 @@ import {
     timestamp,
     boolean,
     index,
+    pgEnum,
 } from "drizzle-orm/pg-core";
+
+// Shared lifecycle status used across all domain tables.
+// Replaces the legacy per-table `is_active` boolean flag.
+export const statusEnum = pgEnum("status", ["active", "inactive", "deleted"]);
 
 export const urls = pgTable("urls", {
     id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
@@ -27,7 +32,15 @@ export const urls = pgTable("urls", {
     // Optional relationship to user — null for anonymous (non-logged-in) users
     userId: integer("user_id").references(() => users.id),
 
+    status: statusEnum("status").default("active").notNull(),
+
     createdAt: timestamp("created_at", {
+        withTimezone: true,
+    })
+        .defaultNow()
+        .notNull(),
+
+    updatedAt: timestamp("updated_at", {
         withTimezone: true,
     })
         .defaultNow()
@@ -39,7 +52,7 @@ export const users = pgTable("users", {
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-    isActive: boolean("is_active").default(true).notNull(),
+    status: statusEnum("status").default("active").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -56,7 +69,9 @@ export const refreshTokens = pgTable("refresh_tokens", {
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     userAgent: varchar("user_agent", { length: 512 }),
     ipAddress: varchar("ip_address", { length: 45 }),
+    status: statusEnum("status").default("active").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // UTM configuration for short URLs — one config per URL
@@ -73,7 +88,7 @@ export const urlUtms = pgTable("url_utms", {
     utmCampaign: varchar("utm_campaign", { length: 255 }),
     utmTerm: varchar("utm_term", { length: 255 }),
     utmContent: varchar("utm_content", { length: 255 }),
-
+    status: statusEnum("status").default("active").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
@@ -96,10 +111,17 @@ export const urlAnalytics = pgTable("url_analytics", {
     // Geolocation — nullable when unknown
     country: varchar("country", { length: 100 }),
     region: varchar("region", { length: 100 }),
+    city: varchar("city", { length: 100 }),
+    continent: varchar("continent", { length: 100 }),
 
     // Device and OS — parsed from User-Agent
     deviceType: varchar("device_type", { length: 50 }),
     os: varchar("os", { length: 100 }),
+    browser: varchar("browser", { length: 100 }),
+
+    status: statusEnum("status").default("active").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
     urlIdIdx: index("url_analytics_url_id_idx").on(table.urlId),
     clickedAtIdx: index("url_analytics_clicked_at_idx").on(table.clickedAt),

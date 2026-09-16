@@ -9,7 +9,7 @@ export const userService = {
             throw new Error("User not found");
         }
 
-        if (!user.isActive) {
+        if (user.status !== "active") {
             throw new Error("User account is deactivated");
         }
 

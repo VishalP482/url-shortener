@@ -60,7 +60,7 @@ export const authService = {
             name,
             email,
             passwordHash,
-            isActive: true,
+            status: "active",
         });
 
         const sessionId = generateSessionId();
@@ -76,7 +76,7 @@ export const authService = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isActive: user.isActive,
+                status: user.status,
                 createdAt: user.createdAt,
             },
             ...tokens,
@@ -102,7 +102,7 @@ export const authService = {
             throw new Error("Invalid email or password");
         }
 
-        if (!user.isActive) {
+        if (user.status !== "active") {
             throw new Error("Account is deactivated");
         }
 
@@ -129,7 +129,7 @@ export const authService = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isActive: user.isActive,
+                status: user.status,
                 createdAt: user.createdAt,
             },
             ...tokens,

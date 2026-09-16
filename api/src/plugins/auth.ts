@@ -11,7 +11,7 @@ declare module "fastify" {
             id: number;
             name: string;
             email: string;
-            isActive: boolean;
+            status: "active" | "inactive" | "deleted";
             createdAt: Date;
         };
     }
@@ -55,7 +55,7 @@ export async function authenticate(
 
         const user = await userRepository.findById(decoded.userId);
 
-        if (!user || !user.isActive) {
+        if (!user || user.status !== "active") {
             return reply.status(401).send({
                 message: "Invalid token",
             });
@@ -65,7 +65,7 @@ export async function authenticate(
             id: user.id,
             name: user.name,
             email: user.email,
-            isActive: user.isActive,
+            status: user.status,
             createdAt: user.createdAt,
         };
     } catch {

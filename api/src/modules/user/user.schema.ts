@@ -23,11 +23,11 @@ export const userResponseSchema = z.object({
             examples: ["john@example.com"],
         }),
 
-    isActive: z
-        .boolean()
+    status: z
+        .enum(["active", "inactive", "deleted"])
         .meta({
-            description: "Whether the user account is active",
-            examples: [true],
+            description: "User account status",
+            examples: ["active"],
         }),
 
     createdAt: z

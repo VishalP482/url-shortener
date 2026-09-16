@@ -8,7 +8,7 @@ export interface UserRecord {
     name: string;
     email: string;
     passwordHash: string;
-    isActive: boolean;
+    status: "active" | "inactive" | "deleted";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -23,7 +23,7 @@ export const userRepository = {
                 name: data.name,
                 email: data.email,
                 passwordHash: data.passwordHash,
-                isActive: data.isActive ?? true,
+                status: data.status ?? "active",
             })
             .returning();
 
